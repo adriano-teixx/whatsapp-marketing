@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Language;
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -29,17 +30,8 @@ class LanguageTableSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'French',
-                'code' => 'fr',
-                'status' => 'active',
-                'deleted_at' => NULL,
-                'deleted_by' => NULL,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Spanish',
-                'code' => 'es',
+                'name' => 'Português (BR)',
+                'code' => 'pt-br',
                 'status' => 'active',
                 'deleted_at' => NULL,
                 'deleted_by' => NULL,
@@ -55,5 +47,10 @@ class LanguageTableSeeder extends Seeder
                 $language
             );
         }
+
+        Setting::updateOrInsert(
+            ['key' => 'default_language'],
+            ['value' => 'pt-br']
+        );
     }
 }

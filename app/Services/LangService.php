@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exports\LanguageJsonExport;
 use App\Http\Resources\LangResource;
 use App\Models\Language;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -20,7 +21,11 @@ class LangService
      */
     public function get(object $request)
     {
-        $rows = Language::where('deleted_at', null)->latest()->paginate(10);
+        $allowedLanguageCodes = $this->getAllowedLanguageCodes();
+        $rows = Language::where('deleted_at', null)
+            ->whereIn(DB::raw('LOWER(code)'), $allowedLanguageCodes)
+            ->latest()
+            ->paginate(10);
 
         return LangResource::collection($rows);
     }
@@ -118,4 +123,15 @@ class LangService
             return response()->json(['message' => 'Failed to delete language'], 500);
         }
     } 
+
+    private function getAllowedLanguageCodes(): array
+    {
+        return collect(config('languages', []))
+            ->pluck('value')
+            ->map(fn ($code) => strtolower($code))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 }

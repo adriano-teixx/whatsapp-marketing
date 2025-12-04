@@ -23,9 +23,9 @@ class Localization
             App::setLocale(strtolower(Session::get('locale')));
         } else {
             if ($this->isInstalled()) {
-                $locale = Setting::where('key', 'default_language')->value('value') ?? 'en';
+                $locale = Setting::where('key', 'default_language')->value('value') ?? 'pt-br';
             } else {
-                $locale = 'en';
+                $locale = 'pt-br';
             }
             
             App::setLocale(strtolower($locale));

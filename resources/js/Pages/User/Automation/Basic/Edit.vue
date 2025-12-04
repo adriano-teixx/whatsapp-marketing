@@ -61,7 +61,7 @@
                     </div>
                     <div class="w-[60%] flex space-x-6">
                         <div class="w-[80%]">
-                            <FormSelect v-model="form.response_type" @update:modelValue="clearResponse" :options="responseOptions" :error="form.errors.response_type" :class="'sm:col-span-6'" :placeholder="'Select Type'"/>
+                            <FormSelect v-model="form.response_type" @update:modelValue="clearResponse" :options="responseOptions" :error="form.errors.response_type" :class="'sm:col-span-6'" :placeholder="$t('Select response type')"/>
                         </div>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
 
     <Modal :label="$t('Select variable')" :isOpen="isModalOpen">
         <div class="flex bg-slate-50 p-2 rounded-md mt-3">
-            <span class="font-light text-sm">Select a placeholder to add to your response. The placeholder will replace itself with the actual data.</span>
+            <span class="font-light text-sm">{{ $t('Select a placeholder to add to your response. The placeholder will replace itself with the actual data.') }}</span>
         </div>
         <div class="mt-2 grid grid-cols-1 gap-x-6">
             <div class="pt-3 grid grid-cols-2 gap-x-2 text-sm gap-y-1">
@@ -204,8 +204,8 @@
     import AppLayout from './../../Layout/App.vue';
     import axios from 'axios';
     import { Link, router, useForm } from "@inertiajs/vue3";
-    import { ref, onMounted, onBeforeUnmount } from 'vue';
-    import { trans } from 'laravel-vue-i18n';
+    import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+    import { useI18n } from 'vue-i18n';
     import FormInput from '@/Components/FormInput.vue';
     import FormSelect from '@/Components/FormSelect.vue';
     import FormSelectCombo from '@/Components/FormSelectCombo.vue';
@@ -215,6 +215,8 @@
     import 'vue3-emoji-picker/css';
 
     const props = defineProps(['autoreply', 'placeholders']);
+
+    const { t } = useI18n();
     const isModalOpen = ref(false);
     const textareaRef = ref(null);
     const emojiPicker = ref(false);
@@ -265,16 +267,16 @@
         'response' : response()
     });
 
-    const criteriaOptions = ref([
-        { value: 'exact match', label: trans('When text is an exact match to trigger text') },
-        { value: 'contains', label: trans('When text contains trigger text') },
-    ])
+    const criteriaOptions = computed(() => [
+        { value: 'exact match', label: t('When text is an exact match to trigger text') },
+        { value: 'contains', label: t('When text contains trigger text') },
+    ]);
 
-    const responseOptions = ref([
-        { value: 'text', label: trans('Respond with text') },
-        { value: 'image', label: trans('Respond with image') },
-        { value: 'audio', label: trans('Respond with audio') },
-    ])
+    const responseOptions = computed(() => [
+        { value: 'text', label: t('Respond with text') },
+        { value: 'image', label: t('Respond with image') },
+        { value: 'audio', label: t('Respond with audio') },
+    ]);
 
     const loadTemplates = async(query, setOptions) => {
         try {

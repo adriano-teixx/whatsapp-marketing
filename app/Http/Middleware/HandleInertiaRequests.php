@@ -11,6 +11,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Inertia\Middleware;
 use RobThree\Auth\TwoFactorAuth;
 use RobThree\Auth\Providers\Qr\BaconQrCodeProvider;
@@ -50,11 +51,19 @@ class HandleInertiaRequests extends Middleware
         $organization = array();
         $organizations = array();
         $user = $request->user();
-        $language = session('locale') ?? 'en';
+        $sessionLocale = session('locale');
+        $language = $sessionLocale ?? 'pt-br';
         $unreadMessages = 0;
         $secret = '';
         $qrcode = '';
         $tfaActive = false;
+        $allowedLanguageCodes = collect(config('languages', []))
+            ->pluck('value')
+            ->map(fn ($code) => strtolower($code))
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
 
         // two-factor stuff
         if ($user) {
@@ -97,8 +106,10 @@ class HandleInertiaRequests extends Middleware
             $config = Setting::whereIn('key', $keys)->get();
             $languages = Language::where('deleted_at', null)
                                ->where('status', 'active')
+                               ->whereIn(DB::raw('LOWER(code)'), $allowedLanguageCodes)
                                ->get();
-            $currentLanguage = Language::where('code', session('locale') ?? App::getLocale())->first();
+            $currentLocale = strtolower($sessionLocale ?? App::getLocale());
+            $currentLanguage = Language::whereRaw('LOWER(code) = ?', [$currentLocale])->first();
             $isRtl = $currentLanguage ? $currentLanguage->is_rtl : false;
         } else {
             $config = array();
